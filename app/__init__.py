@@ -9,6 +9,7 @@ from app.settings.config import config_dict
 from utils.constants import EXTRA_ENV_COINFIG
 from flask_sqlalchemy import SQLAlchemy
 from redis import StrictRedis
+from flask_migrate import Migrate
 
 
 # 创建sqlalchemy组件对象
@@ -36,9 +37,14 @@ def register_extensions(app:Flask):
     redis_client = StrictRedis(host=app.config['REDIS_HOST'], port=app.config['REDIS_PORT'], decode_responses=True)
     # decode_response自动把bytes变为原始类型
 
+    # 添加转换器
     from utils.converters import register_converters
     register_converters(app)
 
+    # 数据组件初始化
+    Migrate(app, db)
+    # 导入模型文件, 让项目可以识别模型类
+    from models import user
 
 
 def create_flask_app(type):
