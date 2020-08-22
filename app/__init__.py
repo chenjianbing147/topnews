@@ -48,6 +48,7 @@ def register_extensions(app:Flask):
     # 导入模型文件, 让项目可以识别模型类
     from models import user
 
+    # 添加钩子函数
     app.before_request(get_userinfo)
 
 

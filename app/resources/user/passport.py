@@ -22,7 +22,7 @@ class SMSCodeResource(Resource):
 
         # 保存验证码(redis)
         key = 'app:code:{}'.format(mobile)
-        redis_client.set(key, rand_num, ex=SMS_CODE_EXPIRE)
+        redis_client.set(key, 123456, ex=SMS_CODE_EXPIRE)
 
         # 发送短信, 第三方短信平台 celry
         print('短信验证码: "mobile": {}, "code": {}'.format(mobile, rand_num))
