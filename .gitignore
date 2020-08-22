@@ -2,3 +2,4 @@
 *.py[cod]
 migrations
 test.py
+.qiniu*

@@ -13,6 +13,12 @@ class DefaultConfig:
     JWT_SECRET = 'TPmi4aLWRbyVq8zu9v82dWYW17/z+UvRnYTt4P6fAXA'  # 秘钥
     JWT_EXPIRE_DAYS = 14  # JWT过期时间
 
+    # 七牛云
+    QINIU_ACCESS_KEY = '0MLvFSm_oBokle-vTlnq0vDvCaHX9qmgwyrNwNpY'
+    QINIU_SECRET_KEY = 'Lj297mUQuC1OWXTredFGutkqt9Pqf8PlVjjQ3hhN'
+    QINIU_BUCKET_NAME = 'hmsh36topnews'
+    QINIU_DOMAIN = 'http://qfgqky63o.hn-bkt.clouddn.com/'
+
 config_dict = {
     'dev':DefaultConfig
 }

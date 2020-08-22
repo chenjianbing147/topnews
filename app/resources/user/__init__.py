@@ -18,6 +18,7 @@ user_api.representation('application/json')(output_json)
 user_api.add_resource(SMSCodeResource, '/sms/codes/<mob:mobile>', endpoint='smscode')
 user_api.add_resource(LoginResource, '/authorizations')
 user_api.add_resource(CurrentUserResource, '/user')
+user_api.add_resource(UserPhotoResource, '/user/photo')
 
 
 
