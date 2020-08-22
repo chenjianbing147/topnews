@@ -69,4 +69,4 @@ class LoginResource(Resource):
         token = generate_jwt({'userid':user.id}, expiry=datetime.utcnow() + timedelta(days=current_app.config['JWT_EXPIRE_DAYS']))
 
         # 返回响应
-        return {'userid':user.id}, 200, {'token':token}
+        return {"token":token}, 200

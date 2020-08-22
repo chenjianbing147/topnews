@@ -2,6 +2,8 @@ import sys, os
 
 from flask import Flask
 
+from utils.middlewares import get_userinfo
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, BASE_DIR + '/common')
 
@@ -45,6 +47,8 @@ def register_extensions(app:Flask):
     Migrate(app, db)
     # 导入模型文件, 让项目可以识别模型类
     from models import user
+
+    app.before_request(get_userinfo)
 
 
 def create_flask_app(type):
