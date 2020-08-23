@@ -63,6 +63,3 @@ class UserChannelResource(Resource):
 
         return {'channels':channels}
 
-
-
-        pass
