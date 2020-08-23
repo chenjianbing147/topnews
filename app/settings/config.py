@@ -19,6 +19,9 @@ class DefaultConfig:
     QINIU_BUCKET_NAME = 'hmsh36topnews'
     QINIU_DOMAIN = 'http://qfgqky63o.hn-bkt.clouddn.com/'
 
+    # CORS
+    CORS_ORIGINS = ['http://127.0.0.1:5000']  # 限定允许访问的域名, 不设置则全部允许
+
 config_dict = {
     'dev':DefaultConfig
 }

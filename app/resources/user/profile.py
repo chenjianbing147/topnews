@@ -31,6 +31,7 @@ class UserPhotoResource(Resource):
     def patch(self):
         # 获取参数
         parser = RequestParser()
+        # 这里不指定type参数, 会强制转换为字符串类型
         parser.add_argument('photo', required=True, location='files', type=image_type)
         args = parser.parse_args()
         image = args.photo

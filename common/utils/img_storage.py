@@ -23,7 +23,6 @@ def upload_file(data):
 
     ret, info = put_data(token, key, data)
     if info.status_code == 200:  # 上传成功
-        print(ret, '/n', info)
         return current_app.config['QINIU_DOMAIN'] + ret.get('key')
 
     else:

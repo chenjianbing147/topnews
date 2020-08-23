@@ -4,6 +4,7 @@ from common.utils.output import output_json
 from utils.constants import BASE_URL_PRIFIX
 from app.resources.user.passport import *
 from app.resources.user.profile import *
+from app.resources.user.channel import UserChannelResource
 
 # 1.创建蓝图对象
 
@@ -19,6 +20,7 @@ user_api.add_resource(SMSCodeResource, '/sms/codes/<mob:mobile>', endpoint='smsc
 user_api.add_resource(LoginResource, '/authorizations')
 user_api.add_resource(CurrentUserResource, '/user')
 user_api.add_resource(UserPhotoResource, '/user/photo')
+user_api.add_resource(UserChannelResource, '/user/channels')
 
 
 
