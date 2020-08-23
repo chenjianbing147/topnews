@@ -3,6 +3,7 @@ from flask import g
 from flask import request
 from sqlalchemy.orm import load_only
 
+from app import db
 from models.article import Channel, UserChannel
 from utils.decorators import login_required
 
@@ -35,8 +36,33 @@ class UserChannelResource(Resource):
 
     def put(self):
         """该接口需要登录"""
-        channel_id = request.json.get('id')
         channels = request.json.get('channels')
+
+        # 将现有的用户频道列表全部删除
+        UserChannel.query.filter(UserChannel.user_id==g.userid).\
+            update({'is_deleted':True})
+
+        # 更新数据
+        for channel in channels:
+            # 查询频道数据
+            user_channel = UserChannel.query.options(load_only(UserChannel.id)).\
+                filter(UserChannel.user_id==g.userid, UserChannel.channel_id==channel['id']).first()
+            if user_channel:
+                # 虽然user_channel没有这个属性, 但是能添加属性
+                # 如果频道在用户频道中, 修改记录 sequence is_delete
+                user_channel.sequence = channel['seq']
+                user_channel.is_delete = False
+
+            else:
+                # 如果频道没有在用户频道中, 添加记录 user_id channel_id sequence
+                user_channel = UserChannel(user_id=g.userid, channel_id=channel['id'], sequence=channel['seq'])
+                db.session.add(user_channel)
+
+        # 提交事物
+        db.session.commit()
+
+        return {'channels':channels}
+
 
 
         pass
