@@ -1,8 +1,9 @@
 from flask import Blueprint
 from flask_restful import Api
 
-from app.resources.article.articles import ArticleListResource
+from app.resources.article.articles import ArticleListResource, ArticleDetailResource
 from app.resources.article.channel import AllChannelResource
+from app.resources.article.following import FollowUserResource
 from utils.constants import BASE_URL_PRIFIX
 
 # 1.创建蓝图对象
@@ -16,3 +17,5 @@ from utils.output import output_json
 article_api.representation('application/json')(output_json)
 article_api.add_resource(AllChannelResource, '/channels')
 article_api.add_resource(ArticleListResource, '/articles')
+article_api.add_resource(ArticleDetailResource, '/articles/<int:article_id>')
+article_api.add_resource(FollowUserResource, '/user/followings')

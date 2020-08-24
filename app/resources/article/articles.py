@@ -1,8 +1,12 @@
+from flask import g
 from flask_restful import Resource
 from flask_restful.reqparse import RequestParser
 from datetime import datetime
-from models.article import Article
-from models.user import User
+
+from sqlalchemy.orm import load_only
+
+from models.article import Article, ArticleContent, Collection, Attitude
+from models.user import User, Relation
 from app import db
 from utils.constants import HOME_PRE_PAGE
 
@@ -50,3 +54,57 @@ class ArticleListResource(Resource):
         per_timestamp = int(data[-1].ctime.timestamp() * 1000) if data else 0
 
         return {'results': resp, 'pre_timestamp': per_timestamp}
+
+
+class ArticleDetailResource(Resource):
+
+    def get(self, article_id):
+        """获取文章详情"""
+
+        # 查询文章数据
+        # 文章表, 用户表, 文章内容表
+        data = db.session.query(Article.id, Article.title,Article.ctime, Article.user_id,
+            User.name, User.profile_photo, ArticleContent.content).\
+            join(User, Article.user_id==User.id).\
+            join(ArticleContent, Article.id==ArticleContent.article_id).\
+            filter(Article.id==article_id).first()
+
+        # 序列化
+        to_dict = {
+            'art_id': data.id,
+            'title': data.title,
+            'pubdate': data.ctime.isoformat(),
+            'aut_id': data.user_id,
+            'aut_name': data.name,
+            'aut_photo': data.profile_photo,
+            'content': data.content,
+            'is_followed': False,
+            'attitude': -1,
+            'is_collected': False
+        }
+
+        """查询关系数据"""
+        # 获取用户信息
+        userid = g.userid
+
+        if userid:  # 判断用户是否登录
+            # 关注情况  用户->作者
+            rel_obj = Relation.query.options(load_only(Relation.id)).\
+                filter(Relation.user_id==userid, Relation.author_id==data.user_id, Relation.relation==Relation.RELATION.FOLLOW).first()
+
+            to_dict['is_followed'] = True if rel_obj else False
+
+            # 收藏情况  用户->文章
+            col_obj = Collection.query.options(load_only(Collection.id)).filter(Collection.user_id==userid,
+                    Collection.article_id==article_id, Collection.is_deleted==False).first(                                                         )
+
+            to_dict['is_collected'] = True if col_obj else False
+
+            # 文章态度  用户->文章
+            atti = Attitude.query.options(load_only(Attitude.attitude)).filter(Attitude.user_id==userid, Attitude.article_id==article_id).first()
+
+            to_dict['attitude'] = atti.attitude if atti else -1
+
+
+        # 返回结果
+        return to_dict
