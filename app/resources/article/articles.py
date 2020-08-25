@@ -9,6 +9,7 @@ from models.article import Article, ArticleContent, Collection, Attitude
 from models.user import User, Relation
 from app import db
 from utils.constants import HOME_PRE_PAGE
+from utils.decorators import login_required
 
 
 class ArticleListResource(Resource):
@@ -108,3 +109,12 @@ class ArticleDetailResource(Resource):
 
         # 返回结果
         return to_dict
+
+
+class CommentResource(Resource):
+    method_decorators = [login_required]
+
+    def post(self):
+        uerid = g.userid
+        # user = User.qeury.options(load_only)
+        # todo:kkkk
