@@ -1,3 +1,4 @@
+from flask import g
 from flask_restful import Resource
 from flask_restful.inputs import regex
 from flask_restful.reqparse import RequestParser
@@ -10,7 +11,7 @@ from utils.decorators import login_required
 
 
 class CommentResource(Resource):
-    method_decorators = [login_required]
+    method_decorators = {'post':[login_required]}
 
     def post(self):
         """发布评论"""
@@ -20,19 +21,29 @@ class CommentResource(Resource):
         parser = RequestParser()
         parser.add_argument('target', required=True, location='json', type=int)
         parser.add_argument('content', required=True, location='json', type=regex(r'.+'))
+        parser.add_argument('parent_id', required=False, location='json', type=int)
         args = parser.parse_args()
         target = args.target
         content = args.content
+        parent_id = args.parent_id
+
+        # 新增回复数据
+        if parent_id:
+            comment = Comment(article_id=target, user_id=userid, content=content, parent_id=parent_id)
+            db.session.add(comment)
+
+            Comment.query.filter(parent_id==Comment.id).update({'reply_count':Comment.reply_count +1 })
 
         # 新增评论数据
-        comment = Comment(article_id=target, user_id=userid, content=content, parent_id=0)
-        db.session.add(comment)
+        else:
+            comment = Comment(article_id=target, user_id=userid, content=content, parent_id=0)
+            db.session.add(comment)
+            # 让文章评论数量+1
+            Article.query.filter(Article.id == target).update({'comment_count': Article.comment_count + 1})
 
-        # 让文章评论数量+1
-        Article.query.filter(Article.id==target).update({'comment_count':Article.comment_count+1})
         db.session.commit()
 
-        return {'target':target, 'com_id':comment.id}
+        return {'target':target, 'com_id':comment.id, 'parent_id':parent_id if parent_id else None}
 
 
     def get(self):
@@ -51,7 +62,7 @@ class CommentResource(Resource):
         comments = db.session.query(Comment.id, Comment.user_id, User.name, User.profile_photo,
                                     Comment.ctime, Comment.content, Comment.reply_count, Comment.like_count).\
                             join(User, Comment.user_id==User.id).filter(Comment.article_id==source, Comment.id > offset).\
-                            limit(limit).all()
+                            order_by(Comment.id).limit(limit).all()
 
         # 序列化
         comment_list = [{
@@ -77,3 +88,5 @@ class CommentResource(Resource):
 
         # 返回数据
         return {'results': comment_list, 'total_count': total_count, 'last_id': last_id, 'end_id': end_id}
+
+

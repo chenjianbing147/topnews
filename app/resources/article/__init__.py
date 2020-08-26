@@ -1,8 +1,9 @@
 from flask import Blueprint
 from flask_restful import Api
 
-from app.resources.article.articles import ArticleListResource, ArticleDetailResource, CommentResource
+from app.resources.article.articles import ArticleListResource, ArticleDetailResource
 from app.resources.article.channel import AllChannelResource
+from app.resources.article.comment import CommentResource
 from app.resources.article.following import FollowUserResource, UnFollowUserResource
 from utils.constants import BASE_URL_PRIFIX
 

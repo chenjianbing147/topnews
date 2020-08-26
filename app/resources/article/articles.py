@@ -111,10 +111,3 @@ class ArticleDetailResource(Resource):
         return to_dict
 
 
-class CommentResource(Resource):
-    method_decorators = [login_required]
-
-    def post(self):
-        uerid = g.userid
-        # user = User.qeury.options(load_only)
-        # todo:kkkk
