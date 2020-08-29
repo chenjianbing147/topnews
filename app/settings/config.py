@@ -28,6 +28,15 @@ class DefaultConfig:
     # CORS
     CORS_ORIGINS = ['http://127.0.0.1:5000']  # 限定允许访问的域名, 不设置则全部允许
 
+    # 设置哨兵的ip和端口
+    SENTINEL_LIST = [
+        ('192.168.105.140', 26380),
+        ('192.168.105.140', 26381),
+        ('192.168.105.140', 26382),
+    ]
+
+    SERVICE_NAME = 'mymaster'  # 哨兵配置的主数据库别名
+
 config_dict = {
     'dev':DefaultConfig
 }
