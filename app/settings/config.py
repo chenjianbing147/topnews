@@ -2,7 +2,13 @@ class DefaultConfig:
     """默认配置"""
 
     # mysql配置
-    SQLALCHEMY_DATABASE_URI = 'mysql://root:mysql@192.168.19.128:3306/hm_topnews'  # 连接地址
+    SQLALCHEMY_DATABASE_URI = 'mysql://root:mysql@192.168.19.128:3306/topnews'  # 数据迁移还要用到这个地址
+
+    SQLALCHEMY_BINDS = {  # 主从数据库的URI
+        "master": 'mysql://root:mysql@192.168.19.128:3306/hm_topnews',
+        "slave1": 'mysql://root:mysql@192.168.19.128:3306/hm_topnews',
+        "slave2": 'mysql://root:mysql@192.168.19.128:8306/hm_topnews'
+    }
     SQLALCHEMY_TRACK_MODIFICATIONS = False  # 是否追踪数据变化
     SQLALCHEMY_ECHO = True  # 是否打印底层执行的SQL
 

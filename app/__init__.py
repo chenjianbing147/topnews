@@ -2,6 +2,7 @@ import sys, os
 
 from flask import Flask
 
+from routing_sqlalchemy.routing_sqlalchemy import RoutingSQLAlchemy
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, BASE_DIR + '/common')
@@ -9,14 +10,13 @@ from utils.middlewares import get_userinfo
 
 from app.settings.config import config_dict
 from utils.constants import EXTRA_ENV_COINFIG
-from flask_sqlalchemy import SQLAlchemy
 from redis import StrictRedis
 from flask_migrate import Migrate
 from flask_cors import CORS
 
 
 # 创建sqlalchemy组件对象
-db = SQLAlchemy()
+db = RoutingSQLAlchemy()
 # 创建redis客户端
 redis_client = None  # type: StrictRedis
 
@@ -50,7 +50,6 @@ def register_extensions(app:Flask):
     # 数据组件初始化
     Migrate(app, db)
     # 导入模型文件, 让项目可以识别模型类
-    from models import user, article
 
     # 添加钩子函数
     app.before_request(get_userinfo)

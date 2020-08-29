@@ -55,6 +55,7 @@ class LoginResource(Resource):
 
         # 验证成功, 查询数据库
         user = User.query.options(load_only(User.id)).filter(User.mobile==mobile).first()
+        user.name = 'kkp'
 
         if user:
             user.last_login = datetime.now()
@@ -62,11 +63,15 @@ class LoginResource(Resource):
         else:
             user = User(mobile=mobile, name=mobile, last_login=datetime.now())
             db.session.add(user)
-
-        db.session.commit()
-
+            db.session.flush()
+        userid = user.id
+        username = user.name
+        # db.session.commit()
+        # print(user.name)  # 打印hahaha
+        db.session.rollback()
         # 生成jwt
         token = generate_jwt({'userid':user.id}, expiry=datetime.utcnow() + timedelta(days=current_app.config['JWT_EXPIRE_DAYS']))
-
+        # print(user.name)  # 打印hehehe, 之所以一个事物提交之后会清空事物里的模型对像, 是因为如果不清空的话, 有可能上个事物改变了记录的某个值, 而上个事物提交失败回滚了
+                            # 清空相当于user这个变量没有任何属性, 只是对应着表中的某条记录, 取字段的话就要去数据库里面再查一遍
         # 返回响应
-        return {"token":token}, 200
+        return {"token":token, "username":username}, 200
