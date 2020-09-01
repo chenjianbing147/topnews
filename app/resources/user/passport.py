@@ -7,7 +7,7 @@ from flask_restful.inputs import regex
 from flask_restful.reqparse import RequestParser
 from sqlalchemy.orm import load_only
 
-from app import redis_client, db
+from app import redis_cluster, db
 from models.user import User
 from utils.constants import SMS_CODE_EXPIRE
 from utils.parser import mobile as mobile_type
@@ -22,7 +22,7 @@ class SMSCodeResource(Resource):
 
         # 保存验证码(redis)
         key = 'app:code:{}'.format(mobile)
-        redis_client.set(key, 123456, ex=SMS_CODE_EXPIRE)
+        redis_cluster.set(key, 123456, ex=SMS_CODE_EXPIRE)
 
         # 发送短信, 第三方短信平台 celry
         print('短信验证码: "mobile": {}, "code": {}'.format(mobile, rand_num))
@@ -45,7 +45,7 @@ class LoginResource(Resource):
 
         # 检验验证码
         key = 'app:code:{}'.format(mobile)
-        real_code = redis_client.get(key)
+        real_code = redis_cluster.get(key)
 
         if not real_code or real_code != code:
             return {"message":"Invalid code", "data":None}, 400

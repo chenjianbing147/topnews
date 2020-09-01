@@ -1,6 +1,8 @@
 import random
 from flask_sqlalchemy import SQLAlchemy, SignallingSession, get_state
 from sqlalchemy import orm
+from sqlalchemy.orm import scoped_session
+from sqlalchemy.orm.scoping import instrument
 from sqlalchemy.sql.dml import UpdateBase
 
 
@@ -14,6 +16,8 @@ from sqlalchemy.sql.dml import UpdateBase
 
 class RoutingSession(SignallingSession):
     """自定义Session类, 继承SignallingSession"""
+
+    _bind = None
 
     def __init__(self, db, autocommit=False, autoflush=True, **options):
         super(RoutingSession, self).__init__(db, autocommit, autoflush, **options)
@@ -47,6 +51,13 @@ class RoutingSession(SignallingSession):
             print('读操作: ', self.slave)
             return state.db.get_engine(self.app, bind=self.slave)
 
+    def using_bind(self, bind):
+        self._bind = bind
+        return self
+
+    # 给scoped_session动态绑定方法
+    setattr(scoped_session, using_bind.__name__, instrument(
+        using_bind.__name__))
 
 class RoutingSQLAlchemy(SQLAlchemy):
     """自定义SQLALchemy类"""

@@ -7,6 +7,7 @@ from models.user import User
 from utils.img_storage import upload_file
 from utils.parser import image_file as image_type
 from app import db
+from cache.user import UserCache
 
 
 class CurrentUserResource(Resource):
@@ -19,16 +20,23 @@ class CurrentUserResource(Resource):
         #　获取用户主键
         userid = g.userid
 
-        # 查询用户数据
-        user = User.query.get(userid)
+        # # 查询用户数据
+        # user = User.query.get(userid)
+        #
+        # return user.to_dict()
 
-        return user.to_dict()
+        # 从缓存层获取数据
+        user_cache = UserCache(userid)
+        user_dict = user_cache.get()
+        return user_dict if user_dict else {'message': 'Invalid User'}
+
 
 
 class UserPhotoResource(Resource):
     method_decorators = [login_required]
 
     def patch(self):
+        userid = g.userid
         # 获取参数
         parser = RequestParser()
         # 这里不指定type参数, 会强制转换为字符串类型
@@ -48,6 +56,11 @@ class UserPhotoResource(Resource):
         # 更新用户数据中的头像字段
         User.query.filter(User.id==g.userid).update({'profile_photo': avatar_url})
         db.session.commit()
+
+        # 更新完数据库, 删除缓存
+        # 将数据对象删除
+        usercache = UserCache(userid)
+        usercache.clear()
 
         # 返回头像的URL
         return {'photo_url': avatar_url}

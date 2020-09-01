@@ -14,14 +14,18 @@ from redis import StrictRedis
 from redis.sentinel import Sentinel
 from flask_migrate import Migrate
 from flask_cors import CORS
+from rediscluster import RedisCluster
 
 
 # 创建sqlalchemy组件对象
 db = RoutingSQLAlchemy()
 # 创建redis客户端
-redis_client = None  # type: StrictRedis
-redis_master = None  # type: StrictRedis
-redis_slave = None  # type: StrictRedis
+# redis_client = None  # type: StrictRedis
+# redis_master = None  # type: StrictRedis
+# redis_slave = None  # type: StrictRedis
+
+redis_cluster = None
+
 
 
 def register_bp(app:Flask):
@@ -61,10 +65,15 @@ def register_extensions(app:Flask):
     CORS(app, supports_credentials=True)  # 设置supports_credentials=True, 则允许跨域传输cookie
 
     # 创建哨兵客户端
-    global redis_master, redis_slave
-    sentinel = Sentinel(app.config['SENTINEL_LIST'])
-    redis_master = sentinel.master_for(app.config['SERVICE_NAME'], decode_responses=True)
-    redis_slave = sentinel.slave_for(app.config['SERVICE_NAME'], decode_responses=True)
+    # global redis_master, redis_slave
+    # sentinel = Sentinel(app.config['SENTINEL_LIST'])
+    # redis_master = sentinel.master_for(app.config['SERVICE_NAME'], decode_responses=True)
+    # redis_slave = sentinel.slave_for(app.config['SERVICE_NAME'], decode_responses=True)
+
+
+    # redis集群组件初始化
+    global redis_cluster
+    redis_cluster = RedisCluster(startup_nodes=app.config['CLUSTER_NODES'], decode_responses=True)
 
 def create_flask_app(type):
     """创建flask应用"""
