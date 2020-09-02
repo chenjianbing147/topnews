@@ -90,10 +90,14 @@ class ArticleDetailResource(Resource):
 
         if userid:  # 判断用户是否登录
             # 关注情况  用户->作者
-            rel_obj = Relation.query.options(load_only(Relation.id)).\
-                filter(Relation.user_id==userid, Relation.author_id==data.user_id, Relation.relation==Relation.RELATION.FOLLOW).first()
+            # rel_obj = Relation.query.options(load_only(Relation.id)).\
+            #     filter(Relation.user_id==userid, Relation.author_id==data.user_id, Relation.relation==Relation.RELATION.FOLLOW).first()
+            # to_dict['is_followed'] = True if rel_obj else False
 
-            to_dict['is_followed'] = True if rel_obj else False
+            # 查询用户的关注关系,  用户 -> 作者
+            has_fans = UserFansCache(data.user_id).has_fans(userid)
+
+            to_dict['is_followed'] = has_fans
 
             # 收藏情况  用户->文章
             col_obj = Collection.query.options(load_only(Collection.id)).filter(Collection.user_id==userid,

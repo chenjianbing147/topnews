@@ -6,7 +6,7 @@ from flask_restful.reqparse import RequestParser
 from sqlalchemy.orm import load_only
 
 from app import db
-from cache.user import UserFollowCache, UserCache
+from cache.user import UserFollowCache, UserCache, UserFansCache
 from models.user import Relation, User
 from utils.decorators import login_required
 
@@ -64,13 +64,19 @@ class FollowUserResource(Resource):
         author_list = []
         for author_id in following_list:
             author_cache = UserCache(author_id).get()
-            author_list.append({
-                'id':author_cache.get('id'),
-                'name':author_cache.get('name'),
-                'photo':author_cache.get('photo'),
-                'fans_count':author_cache.get('fans_count'),
-                'mutual_follow':author_cache.get('mutual_follow'),
-            })
+            author_dict = {
+                'id': author_cache['id'],
+                'name': author_cache['name'],
+                'photo': author_cache['photo'],
+                'fans_count': author_cache['fans_count'],
+                'mutual_follow': False
+            }
+
+            # 如果该作者 是 当前用户的粉丝, 则为互相关注
+            if UserFansCache(userid).has_fans(author_id):
+                author_dict['mutual_follow'] = True
+
+            author_list.append(author_dict)
 
         # 获取用户关注数量
         user = UserCache(userid).get()

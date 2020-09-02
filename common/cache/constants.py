@@ -41,3 +41,5 @@ class UserNotExistTTL(BaseCacheTTL):
 
 class UserFollowCacheTTL(BaseCacheTTL):
     pass
+
+
